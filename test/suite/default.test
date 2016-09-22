@@ -1,0 +1,21 @@
+register functions/tag_search
+
+table_create Tags TABLE_PAT_KEY ShortText
+
+table_create Entries TABLE_NO_KEY
+column_create Entries title COLUMN_SCALAR ShortText
+column_create Entries tag COLUMN_SCALAR Tags
+
+load --table Entries
+[
+{"title": "Groonga and NoSQL", "tag": "NoSQL"},
+{"title": "Mroonga and MySQL", "tag": "MySQL"},
+{"title": "PGroonga and PostgreSQL", "tag": "PostgreSQL"}
+]
+
+table_create Terms TABLE_PAT_KEY ShortText --default_tokenizer TokenBigram
+column_create Terms title_index COLUMN_INDEX|WITH_POSITION Entries title
+
+column_create Tags tag_index COLUMN_INDEX Entries tag
+
+select Entries --filter 'title @ "roonga" && tag_search(tag, "NoSQL", "MySQL")' --output_columns '_id,_score,title,tag'
