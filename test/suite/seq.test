@@ -1,0 +1,25 @@
+plugin_register functions/tag_search
+table_create prefectures TABLE_HASH_KEY ShortText
+table_create applicants TABLE_HASH_KEY ShortText
+table_create docs TABLE_HASH_KEY ShortText
+column_create docs applicants COLUMN_VECTOR applicants
+column_create applicants prefecture COLUMN_SCALAR prefectures
+load --table docs
+[
+{"_key": "JP2001213456", "applicants": ["三洋"]},
+{"_key": "JP2001213457", "applicants": ["パナソニック"]},
+{"_key": "JP2001213458", "applicants": ["ソニー"]},
+{"_key": "JP2001213459", "applicants": ["パナソニック"]}
+]
+
+load --table applicants
+[
+{"_key": "三洋", "prefecture": "大阪"},
+{"_key": "ソニー", "prefecture": "東京"}
+]
+column_create applicants applicants COLUMN_INDEX docs applicants
+column_create prefectures applicants_index COLUMN_INDEX applicants prefecture
+
+select docs \
+  --filter 'tag_search(applicants.prefecture, "東京")' \
+  --output_columns '_id,_score,_key,applicants,applicants.prefecture'

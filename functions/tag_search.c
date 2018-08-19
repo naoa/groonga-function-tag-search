@@ -253,6 +253,44 @@ exit :
   return rc;
 }
 
+static grn_obj *
+func_tag_search(grn_ctx *ctx, int nargs, grn_obj **args, grn_user_data *user_data)
+{
+  grn_obj *found;
+  grn_obj *target_value;
+  int i;
+
+  found = grn_plugin_proc_alloc(ctx, user_data, GRN_DB_BOOL, 0);
+  if (!found) {
+    return NULL;
+  }
+  GRN_BOOL_SET(ctx, found, GRN_FALSE);
+
+  if (nargs < 1) {
+    ERR(GRN_INVALID_ARGUMENT,
+        "tag_search(): wrong number of arguments (%d for 1..)", nargs);
+    return found;
+  }
+
+  target_value = args[0];
+  for (i = 1; i < nargs; i++) {
+    grn_obj *value = args[i];
+    grn_bool result;
+
+    result = grn_operator_exec_equal(ctx, target_value, value);
+    if (ctx->rc) {
+      break;
+    }
+
+    if (result) {
+      GRN_BOOL_SET(ctx, found, GRN_TRUE);
+      break;
+    }
+  }
+
+  return found;
+}
+
 grn_rc
 GRN_PLUGIN_INIT(GNUC_UNUSED grn_ctx *ctx)
 {
@@ -266,7 +304,7 @@ GRN_PLUGIN_REGISTER(grn_ctx *ctx)
     grn_obj *selector_proc;
 
     selector_proc = grn_proc_create(ctx, "tag_search", -1, GRN_PROC_FUNCTION,
-                                    NULL, NULL, NULL, 0, NULL);
+                                    func_tag_search, NULL, NULL, 0, NULL);
     grn_proc_set_selector(ctx, selector_proc, selector_tag_search);
     grn_proc_set_selector_operator(ctx, selector_proc, GRN_OP_MATCH);
   }
