@@ -188,8 +188,9 @@ selector_tag_search(grn_ctx *ctx, GNUC_UNUSED grn_obj *table, GNUC_UNUSED grn_ob
   }
 */
 
+  int original_flags = ctx->flags;
   if (internal_op == GRN_OP_OR) {
-    ctx->flags |= GRN_CTX_TEMPORARY_DISABLE_II_RESOLVE_SEL_AND;
+   ctx->flags |= GRN_CTX_TEMPORARY_DISABLE_II_RESOLVE_SEL_AND;
   } else {
     op = internal_op;
   }
@@ -236,7 +237,7 @@ selector_tag_search(grn_ctx *ctx, GNUC_UNUSED grn_obj *table, GNUC_UNUSED grn_ob
     search_options.max_size = 0;
     search_options.scorer = NULL;
     if (i == n_values - 1 && internal_op == GRN_OP_OR) {
-      ctx->flags &= ~GRN_CTX_TEMPORARY_DISABLE_II_RESOLVE_SEL_AND;
+      ctx->flags = original_flags;
     }
     rc = grn_obj_search(ctx, index, value, res, op, &search_options);
 
