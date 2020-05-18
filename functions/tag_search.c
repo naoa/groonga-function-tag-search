@@ -117,8 +117,6 @@ selector_tag_search(grn_ctx *ctx, GNUC_UNUSED grn_obj *table, GNUC_UNUSED grn_ob
           internal_op = GRN_OP_OR;
         } else if (GRN_TEXT_LEN(value) == 3 && !memcmp(GRN_TEXT_VALUE(value), "AND", 3)) {
           internal_op = GRN_OP_AND;
-        } else if (GRN_TEXT_LEN(value) == 3 && !memcmp(GRN_TEXT_VALUE(value), "NOT", 3)) {
-          internal_op = GRN_OP_AND_NOT;
         } else {
           is_valid = GRN_FALSE;
         }
